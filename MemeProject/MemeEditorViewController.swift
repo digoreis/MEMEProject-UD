@@ -8,6 +8,13 @@
 
 import UIKit
 
+struct MemeData {
+    let topText : String
+    let bottomText : String
+    let originImage : UIImage?
+    let memeImage : UIImage
+}
+
 class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var memeContainer: UIView!
@@ -53,7 +60,6 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     
     fileprivate func generateMemedImage() -> UIImage
     {
-        // Render view to an image
         UIGraphicsBeginImageContext(self.memeContainer.frame.size)
         memeContainer.drawHierarchy(in: self.memeContainer.frame,
                                      afterScreenUpdates: true)
@@ -65,15 +71,19 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     @IBAction func pickAnImageFromCamera (sender: AnyObject) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        present(imagePicker, animated: true, completion: nil)
+        openAlbumOrCamera(camera: false)
     }
     
     @IBAction func pickAnImageFromAlbum (sender: AnyObject) {
+        openAlbumOrCamera(camera: true)
+    }
+    
+    fileprivate func openAlbumOrCamera(camera : Bool) {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        imagePicker.sourceType = UIImagePickerControllerSourceType.photoLibrary
+        if camera {
+            imagePicker.sourceType = UIImagePickerControllerSourceType.photoLibrary
+        }
         present(imagePicker, animated: true, completion: nil)
     }
     
@@ -88,9 +98,17 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         
         let shareItems:Array = [generateImage]
         let activityViewController:UIActivityViewController = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
-        
+        activityViewController.completionWithItemsHandler = { activity, success, items, error in
+            if success {
+                self.save(memeImage: generateImage)
+            }
+        }
         self.present(activityViewController, animated: true, completion: nil)
         
+    }
+    
+    func save(memeImage : UIImage) {
+        _ = MemeData(topText : topText.text ?? "", bottomText : bottomText.text ?? "", originImage : imageContainer.image, memeImage: memeImage)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -124,11 +142,15 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     func keyboardWillShow(notification: NSNotification) {
-        view.frame.origin.y -= getKeyboardHeight(notification: notification)
+        if view.frame.origin.y >= 0 {
+            view.frame.origin.y -= getKeyboardHeight(notification: notification)
+        }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        view.frame.origin.y += getKeyboardHeight(notification: notification)
+        if view.frame.origin.y <= 0 {
+            view.frame.origin.y += getKeyboardHeight(notification: notification)
+        }
     }
     
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
