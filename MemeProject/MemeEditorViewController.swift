@@ -8,13 +8,6 @@
 
 import UIKit
 
-struct MemeData {
-    let topText : String
-    let bottomText : String
-    let originImage : UIImage?
-    let memeImage : UIImage
-}
-
 class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var memeContainer: UIView!
@@ -24,6 +17,8 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     @IBOutlet weak var bottomText: UITextField!
     
     @IBOutlet weak var imageContainer: UIImageView!
+    
+    fileprivate var keyboardNeedOpen = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,8 +53,7 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         
     }
     
-    fileprivate func generateMemedImage() -> UIImage
-    {
+    fileprivate func generateMemedImage() -> UIImage {
         UIGraphicsBeginImageContext(self.memeContainer.frame.size)
         memeContainer.drawHierarchy(in: self.memeContainer.frame,
                                      afterScreenUpdates: true)
@@ -122,6 +116,14 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         picker.dismiss(animated: true, completion: nil)
     }
     
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == bottomText {
+            keyboardNeedOpen = true
+        } else {
+            keyboardNeedOpen = false
+        }
+    }
+    
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -142,13 +144,18 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     func keyboardWillShow(notification: NSNotification) {
+       
+        guard keyboardNeedOpen else { return }
+        
         if view.frame.origin.y >= 0 {
             view.frame.origin.y -= getKeyboardHeight(notification: notification)
         }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        if view.frame.origin.y <= 0 {
+        guard keyboardNeedOpen else { return }
+        
+        if view.frame.origin.y <= 0  {
             view.frame.origin.y += getKeyboardHeight(notification: notification)
         }
     }
