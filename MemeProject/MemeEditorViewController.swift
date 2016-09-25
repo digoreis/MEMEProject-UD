@@ -79,9 +79,7 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     @IBAction func cancel(sender : AnyObject) {
-        imageContainer.image = nil
-        topText.text = ""
-        bottomText.text = ""
+        self.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func share(sender : AnyObject) {
@@ -92,6 +90,7 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         activityViewController.completionWithItemsHandler = { activity, success, items, error in
             if success {
                 self.save(memeImage: generateImage)
+                self.dismiss(animated: true, completion: nil)
             }
         }
         self.present(activityViewController, animated: true, completion: nil)
@@ -99,7 +98,12 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     func save(memeImage : UIImage) {
-        _ = MemeData(topText : topText.text ?? "", bottomText : bottomText.text ?? "", originImage : imageContainer.image, memeImage: memeImage)
+        let meme = MemeData(topText : topText.text ?? "", bottomText : bottomText.text ?? "", originImage : imageContainer.image, memeImage: memeImage)
+
+        let object = UIApplication.shared.delegate
+        if let appDelegate = object as? AppDelegate {
+            appDelegate.memes.append(meme)
+        }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
