@@ -17,10 +17,6 @@ class MemeGridViewController : UIViewController, UICollectionViewDelegate, UICol
         return (UIApplication.shared.delegate as! AppDelegate).memes
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         collectionView.reloadData()
@@ -30,6 +26,10 @@ class MemeGridViewController : UIViewController, UICollectionViewDelegate, UICol
         return memes.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let data = memes[indexPath.row]
+        performSegue(withIdentifier: "collectionToDetail", sender: data)
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? MemeCollectionViewCell ?? MemeCollectionViewCell()
@@ -37,5 +37,10 @@ class MemeGridViewController : UIViewController, UICollectionViewDelegate, UICol
         return cell
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let vc  = segue.destination as? MemeDetailViewController, let data = sender as? MemeData {
+            vc.memeData = data
+        }
+    }
     
 }

@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MemeEditorViewController.swift
 //  MemeProject
 //
 //  Created by apple on 18/09/16.
@@ -18,10 +18,6 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     
     @IBOutlet weak var imageContainer: UIImageView!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupUI()
@@ -29,6 +25,7 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         unsubscribeFromKeyboardNotifications()
     }
     
@@ -73,7 +70,9 @@ class MemeEditorViewController: UIViewController,UIImagePickerControllerDelegate
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         if camera {
-            imagePicker.sourceType = UIImagePickerControllerSourceType.photoLibrary
+            imagePicker.sourceType = .photoLibrary
+        } else {
+            imagePicker.sourceType = .camera
         }
         present(imagePicker, animated: true, completion: nil)
     }

@@ -18,10 +18,6 @@ class MemeTableViewController : UIViewController, UITableViewDelegate, UITableVi
         return (UIApplication.shared.delegate as! AppDelegate).memes
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
@@ -44,5 +40,16 @@ class MemeTableViewController : UIViewController, UITableViewDelegate, UITableVi
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80.0
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let data = memes[indexPath.row]
+        performSegue(withIdentifier: "tableToDetail", sender: data)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let vc  = segue.destination as? MemeDetailViewController, let data = sender as? MemeData {
+            vc.memeData = data
+        }
     }
 }
